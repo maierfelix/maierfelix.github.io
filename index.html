@@ -1,29 +1,74 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>//</title>
+    <meta name="description" content="Felix Maier">
+    <meta name="author" content="Felix Maier">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="css/main.css" rel="stylesheet">
+  </head>
+  <body>
 
-<div class="home">
+    <div>
+      <br/>
+      <br/>
+      <center>
+        Hi there!
+        <br/>
+        I'm Felix Maier
+      </center>
+    </div>
 
-  <div class="posts">
-    {% for post in paginator.posts %}
-      <div class="post">
-        <a href="{{ post.url | prepend: site.baseurl }}" class="post-link">
-          <p class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</p>
-          <h3 class="h2 post-title">{{ post.title }}</h3>
-          <p class="post-summary" style="color: #5c5e6a;font-size: 17px;font-size: 1.2rem;margin-top: 23px;">{{ post.summary }}</p>
-          
-          <ul class="meta-tag-list" style="float: left;margin-top: -17px;">
-            {% for tag in post.tags %}
-              <li class="meta-tag-item">
-                <a href="#" style="font-size: 15px;font-weight: 300;">{{ tag }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        </a>
-      </div>
-    {% endfor %}
-  </div>
+    <div>
+      <br/>
+      <br/>
+      <center>
+        I'm 20 years old from Stuttgart, Germany.<br/>If you have any questions feel free to write me a <a href="mailto:xilefmai@gmail.com">mail</a> <l style="color:#efe700;">:-)</l>
+      </center>
+    </div>
 
-  {% include pagination.html %}
+    <div>
+      <br/>
+      <br/>
+      <center>
+        Compiler related:
+        <br/>
+        • <a href="https://github.com/maierfelix/hevia-compiler">Compiler providing a Swift like language</a><br/>
+        • <a href="https://github.com/maierfelix/hevia-parser">A parser for Apple's Swift language</a><br/>
+        • <a href="https://github.com/maierfelix/htmlparse">A fast HTML parser</a><br/>
+        <br/>
+        Games:
+        <br/>
+        • <a href="https://github.com/maierfelix/space-shooter">Space shooter (much boom-boom)</a><br/>
+        • <a href="https://github.com/maierfelix/pokemmo">WebGL Pokemon engine</a><br/>
+        • <a href="https://github.com/maierfelix/pogoserver">Pokemon GO server emulator</a><br/>
+        <br/>
+        Experiments:
+        <br/>
+        • <a href="https://github.com/maierfelix/txt2png">Storing ASCII inside PNG's</a><br/>
+        • <a href="https://github.com/maierfelix/music-box">Programmable music box</a><br/>
+        • <a href="https://github.com/maierfelix/html-canvas">Rendering html into canvas</a><br/>
+        <br/>
+        Older projects:
+        <br/>
+        • <a href="https://github.com/maierfelix/lamella">Flow based visual programming</a><br/>
+        • <a href="https://github.com/maierfelix/calc">Browserbased multiplayer table calculation</a><br/>
+      </center>
+    </div>
 
-</div>
+    <div>
+      <br/>
+      <br/>
+      <center>
+        Links:
+        <br/>
+        <a href="https://github.com/maierfelix">Github</a>,
+        <a href="https://medium.com/@xilefmai">Medium</a>
+        <br/>
+        <br/>
+      </center>
+    </div>
+
+  </body>
+</html>
