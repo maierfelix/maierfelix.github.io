@@ -1,8 +1,8 @@
-var GET = (str, resolve) => {
+var GET = function(str, resolve) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", str, true);
   xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onload = () => {
+  xhr.onload = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
       resolve(xhr.responseText);
     }
