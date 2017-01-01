@@ -19,8 +19,8 @@ body {
   font-size: 14px;
   letter-spacing: 1px;
   line-height: 18px;
-  color: #ffffff;
-  background: #1a1a1a;
+  color: #b7bab3;
+  background: #353631;
 }
 
 html::-webkit-scrollbar {
@@ -28,7 +28,7 @@ html::-webkit-scrollbar {
 }
 
 a {
-  color: #bfc0b2;
+  color: #bfc2bb;
   text-decoration: none;
 }
 
