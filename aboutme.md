@@ -11,6 +11,7 @@ People who know me remember me as the child/teenager, who always wanted to creat
 
 ## Links
 
+ - [Github](https://github.com/maierfelix)
  - [E-Mail](mailto:xilefmai@gmail.com)
  - [Twitter](https://twitter.com/felixmaier96)
 
