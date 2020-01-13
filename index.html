@@ -1,219 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>cd ~</title>
-    <meta name="description" content="Felix Maier">
-    <meta name="author" content="Felix Maier">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-  </head>
-  <body>
+---
+layout: page
+title: Felix Maier
+subtitle:
+use-site-title: true
+---
 
-    <div>
-      <br/>
-      <br/>
-      <center>
-        Hi there!
-      </center>
+<div class="posts-list">
+  {% for post in paginator.posts %}
+  <article class="post-preview">
+    <a href="{{ post.url | relative_url }}">
+	  <h2 class="post-title">{{ post.title }}</h2>
+
+	  {% if post.subtitle %}
+	  <h3 class="post-subtitle">
+	    {{ post.subtitle }}
+	  </h3>
+	  {% endif %}
+    </a>
+
+    <p class="post-meta">
+      Posted on {{ post.date | date: site.date_format }}
+    </p>
+
+    <div class="post-entry-container">
+      {% if post.image %}
+      <div class="post-image">
+        <a href="{{ post.url | relative_url }}">
+          <img src="{{ post.image | relative_url }}">
+        </a>
+      </div>
+      {% endif %}
+      <div class="post-entry">
+        {{ post.excerpt | strip_html | xml_escape | truncatewords: site.excerpt_length }}
+        {% assign excerpt_word_count = post.excerpt | number_of_words %}
+        {% if post.content != post.excerpt or excerpt_word_count > site.excerpt_length %}
+          <a href="{{ post.url | relative_url }}" class="post-read-more">[Read&nbsp;More]</a>
+        {% endif %}
+      </div>
     </div>
 
-    <div>
-      <br/>
-      <br/>
-      <center>
-        I'm Felix Maier and currently live in Tübingen, Germany. <br/>
-      </center>
+    {% if post.tags.size > 0 %}
+    <div class="blog-tags">
+      Tags:
+      {% if site.link-tags %}
+      {% for tag in post.tags %}
+      <a href="{{ '/tags' | relative_url }}#{{- tag -}}">{{- tag -}}</a>
+      {% endfor %}
+      {% else %}
+        {{ post.tags | join: ", " }}
+      {% endif %}
     </div>
+    {% endif %}
 
-    <div>
-      <br/>
-      <br/>
-      <center>
-        WebGPU related:
-        <br/>
-        • <a href="https://github.com/maierfelix/webgpu">WebGPU API for Node</a> <code lang="js"></code> <code lang="webgpu"></code> <br/>
-        <br/>
-        Vulkan related:
-        <br/>
-        • <a href="https://github.com/maierfelix/nvk">Vulkan JavaScript API</a> <code lang="c++"></code> <code lang="js"></code> <code lang="vulkan"></code> <br/>
-        • <a href="https://github.com/maierfelix/nvk-examples">Vulkan JavaScript API examples</a> <code lang="js"></code> <code lang="vulkan"></code> <br/>
-        • <a href="https://github.com/maierfelix/tiny-rtx">Vulkan based RTX Real-Time Ray Tracer</a> <code lang="js"></code> <code lang="vulkan"></code> <br/>
-        • <a href="https://github.com/maierfelix/momo">Vulkan based RTX Real-Time Path Tracer</a> <code lang="js"></code> <code lang="vulkan"></code> <br/>
-        • <a href="https://github.com/maierfelix/nvk-optix-denoiser">Optix AI Denoiser for node-vulkan</a> <code lang="c++"></code> <code lang="vulkan"></code> <br/>
-        <br/>
-        VR related:
-        <br/>
-        • <a href="https://github.com/maierfelix/xr-engine">A WebXR based VR 3D engine</a> <code lang="js"></code> <code lang="webgl"></code> <code lang="webxr"></code><br/>
-        <br/>
-        WebAssembly related:
-        <br/>
-        • <a href="https://github.com/maierfelix/rokon">3D engine using WebGL2, WebAssembly</a> <code lang="js"></code> <code lang="webgl"></code><br/>
-        • <a href="https://github.com/maierfelix/glmw">WebAssembly based Matrix and Vector library</a> <code lang="wasm"></code> <code lang="c"></code><br/>
-        • <a href="https://github.com/maierfelix/tolw">WebAssembly Port of tinyobjloader</a> <code lang="c++"></code> <code lang="wasm"></code> <code lang="js"></code><br/>
-        <br/>
-        Compiler related:
-        <br/>
-        • <a href="https://github.com/maierfelix/mini-c">A C to WebAssembly compiler</a> <code lang="c"></code> <code lang="wasm"></code> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/mini-js">A Self-Compiling JavaScript Compiler in 1k LOC</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/hevia-compiler">A Swift-like language Compiler</a> <code lang="js"></code><br/>
-        <br/>
-        Parser related:
-        <br/>
-        • <a href="https://github.com/maierfelix/hevia-parser">A Parser for Apple's Swift language</a> <code lang="js"></code> <code lang="swift"></code><br/>
-        • <a href="https://github.com/maierfelix/htmlparse">A fast HTML Parser</a> <code lang="js"></code><br/>
-        <br/>
-        Research related:
-        <br/>
-        • <a href="https://github.com/maierfelix/Iroh">Dynamic Code Flow Analysis</a> <code lang="js"></code><br/>
-        <br/>
-        ROM Hacking related:
-        <br/>
-        • <a href="https://github.com/maierfelix/pokemon-emerald-rom-hacking">Pokemon Emerald ROM Hacking Kit</a> <code lang="js"></code><br/>
-        <br/>
-        Game Development related:
-        <br/>
-        • <a href="https://www.youtube.com/channel/UC5bMVzJRThGgpYSkNj3cdwQ">PokeCraft (Wrote the Rendering Engine)</a><code lang="js"></code><code lang="webgl"></code><br>
-        • <a href="https://www.youtube.com/watch?v=-COtECNb8lo">A WebGL Pokemon Map Editor</a> <code lang="js"></code> <code lang="webgl"></code><br/>
-        • <a href="https://github.com/maierfelix/pokemmo">WebGL Pokemon Engine</a> <code lang="js"></code> <code lang="webgl"></code><br/>
-        • <a href="https://github.com/maierfelix/pogoserver">Pokemon GO Server Emulator</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/space-shooter">Space Shooter</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/poxi">A flat pixel art editor using low-level matrices</a> <code lang="js"></code> <code lang="webgl"></code><br/>
-        <br/>
-        Minecraft related:
-        <br/>
-        • <a href="https://github.com/maierfelix/mc-spawner-upgrade">Mob Spawner Upgrade</a> <code lang="java"></code><br/>
-        <br/>
-        Experiments:
-        <br/>
-        • <a href="https://github.com/maierfelix/wasm-particles">Particle System using WASM and WebGL</a> <code lang="c"></code> <code lang="js"></code> <code lang="webgl"></code><br/>
-        • <a href="https://github.com/maierfelix/3d-code-vizard">Visualizing Runtime Code-Behaviour inside a 3D environment</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/src2game">Turning a Runtime Control-Flow into a Game</a> <code lang="js"></code><br/>
-        <br/>
-        Older projects:
-        <br/>
-        • <a href="https://github.com/maierfelix/lamella">Flow-based Visual Programming</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/calc">Multiplayer Spreadsheet</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/canvas-live-stream">Live streaming Canvas over Websockets</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/html-canvas">Rendering HTML inside a Canvas</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/txt2png">Storing ASCII inside PNGs</a> <code lang="js"></code><br/>
-        • <a href="https://github.com/maierfelix/music-box">Programmable Music Box</a> <code lang="js"></code><br/>
-      </center>
-    </div>
+   </article>
+  {% endfor %}
+</div>
 
-    <div>
-      <br/>
-      <br/>
-      <center>
-        Links:
-        <br/>
-        <a href="https://github.com/maierfelix">Github</a>,
-        <a href="https://twitter.com/felixmaier96">Twitter</a>,
-        <a href="mailto:xilefmai@gmail.com">Email</a>
-        <br/>
-        <br/>
-      </center>
-    </div>
-
-    <div>
-      <br/>
-      <center id="updated" style="color:#717171;"></center>
-      <br/>
-    </div>
-
-    <style>
-      html {
-        overflow-y: scroll;
-        font-size: 100%;
-        -webkit-overflow-scrolling: touch;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-      }
-      body {
-        margin: 0;
-        font-family: Roboto,-apple-system,BlinkMacSystemFont,"Helvetica Neue","Segoe UI","Oxygen","Ubuntu","Cantarell","Open Sans",sans-serif;
-        font-size: 14px;
-        letter-spacing: 1px;
-        line-height: 21px;
-        color: #b7bab3;
-        background: #353631;
-      }
-      a {
-        color: #ffffff;
-        text-decoration: none;
-      }
-      a:hover {
-        color: #717171;
-      }
-      ::-webkit-scrollbar {
-        width: 12px;
-      }
-      ::-webkit-scrollbar-thumb {
-        -webkit-border-radius: 1px;
-        border-radius: 1px;
-        -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.35);
-        background: rgba(255,255,255,0.55); 
-      }
-      ::-webkit-scrollbar-track {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
-        background: rgba(0,0,0,0.25); 
-        -webkit-border-radius: 1px;
-        border-radius: 1px;
-      }
-      code {
-        padding-top: 2px;
-        padding-bottom: 2px;
-        padding-left: 6px;
-        padding-right: 6px;
-        background: rgba(255,255,255,0.075);
-        font-size: 12px;
-        cursor: text;
-      }
-      code:hover {
-        background: rgba(255,255,255,0.09);
-      }
-      code[lang="c++"]:before {
-        content: "C++";
-        color: rgb(243, 75, 125);
-      }
-      code[lang="js"]:before {
-        content: "JS";
-        color: rgb(241, 224, 90);
-      }
-      code[lang="c"]:before {
-        content: "C";
-        color: rgb(158, 158, 158);
-      }
-      code[lang="wasm"]:before {
-        content: "WASM";
-        color: rgb(4, 19, 59);
-      }
-      code[lang="swift"]:before {
-        content: "Swift";
-        color: rgb(255, 172, 69);
-      }
-      code[lang="java"]:before {
-        content: "Java";
-        color: rgb(176, 114, 25);
-      }
-      code[lang="webgl"]:before {
-        content: "WebGL";
-        color: rgb(195, 54, 60);
-      }
-      code[lang="webxr"]:before {
-        content: "WebXR";
-        color: rgb(86, 225, 228);
-      }
-      code[lang="vulkan"]:before {
-        content: "Vulkan";
-        color: rgb(195, 54, 60);
-      }
-      code[lang="webgpu"]:before {
-        content: "WebGPU";
-        color: rgb(112, 243, 134);
-      }
-    </style>
-
-    <script type="text/javascript" src="js/main.js" async></script>
-
-  </body>
-</html>
+{% if paginator.total_pages > 1 %}
+<ul class="pager main-pager">
+  {% if paginator.previous_page %}
+  <li class="previous">
+    <a href="{{ paginator.previous_page_path | relative_url }}">&larr; Newer Posts</a>
+  </li>
+  {% endif %}
+  {% if paginator.next_page %}
+  <li class="next">
+    <a href="{{ paginator.next_page_path | relative_url }}">Older Posts &rarr;</a>
+  </li>
+  {% endif %}
+</ul>
+{% endif %}
