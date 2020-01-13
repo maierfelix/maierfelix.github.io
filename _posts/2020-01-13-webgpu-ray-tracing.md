@@ -22,7 +22,7 @@ Modern Graphics APIs became a lot more complicated to work with and RTX was only
 
 WebGPU is the successor to WebGL and combines multiple Graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
 
-Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one. The commands sent to WebGPU then get translated into the active rendering backend. 
+Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends. 
 
 ## Upfront
 
