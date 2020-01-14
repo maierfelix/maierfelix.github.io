@@ -11,9 +11,9 @@ comments: true
 
 By the end of 2018, NVIDIA released the new GPU series Turing, best known for it's ability of accelerated Ray-Tracing.
 
-Ray-Tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eye. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
+Ray-Tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
 
-Previously, if you were interested in RTX or wanted to learn about this topic, then you had a huge chunk of learning material in front of you.
+Previously, if you were interested in RTX or wanted to learn about this topic, then you had a giant chunk of learning material in front of you.
 Modern Graphics APIs became a lot more complicated to work with and RTX was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the RTX topic itself.
 
 **Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test RTX without the need to buy one of those more expensive cards.
@@ -22,7 +22,7 @@ Modern Graphics APIs became a lot more complicated to work with and RTX was only
 
 WebGPU is the successor to WebGL and combines multiple Graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
 
-Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends. 
+Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
 
 ## Upfront
 
@@ -459,3 +459,18 @@ void main() {
 ````
 
 The fragment Shader is just copying the pixels of the Pixel Buffer into the Color Attachment. 
+
+### Tada
+
+Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire API, but let me show you 2 further methods, which can be quite handy:
+
+#### updateRayTracingAccelerationContainer
+This method updates a container and can be used on both Bottom- and Top-Level Acceleration Containers. If it's a Bottom-Level Container, then you might update the Vertex Buffer at some point (e.g. Skeletal Animation).
+
+![](https://i.imgur.com/VO9hPv1.gif)<br/>
+*GLTF Skeletal Animation in RTX*
+
+This image is showing a quick implementation for Skeletal Animation, where the Acceleration Containers get updated each frame, and the Vertex Skinning is done in a Compute Shader.
+
+#### copyRayTracingAccelerationContainer
+This method allows to copy the state of an Acceleration Container into another Container and works both for Bottom- and Top-Level Containers.
