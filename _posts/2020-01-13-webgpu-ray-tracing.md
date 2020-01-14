@@ -101,7 +101,7 @@ let triangleVertexBuffer = device.createBuffer({
 triangleVertexBuffer.setSubData(0, triangleVertices);
 ````
 
-Note that the Ray-Tracing API strictly disallows using geometry buffers, which aren't uploaded on the GPU. The reason for this is, that performing Ray-Tracing on a mapped buffer is incredibly ineffective because of the synchronization.
+Note that the Ray-Tracing API strictly disallows using geometry buffers, which aren't uploaded on the GPU. The reason for this is, that performing Ray-Tracing on a mapped buffer is incredibly ineffective because of the synchronization with the host.
 
 Since it's always recommended to use an Index buffer aside your geometry, let's create one:
 ````js
@@ -465,12 +465,12 @@ The fragment Shader is just copying the pixels of the Pixel Buffer into the Colo
 Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire API, but let me show you 2 further methods, which can be quite handy:
 
 #### updateRayTracingAccelerationContainer
-This method updates a container and can be used on both Bottom- and Top-Level Acceleration Containers. If it's a Bottom-Level Container, then you might update the Vertex Buffer at some point (e.g. Skeletal Animation).
+This method updates an Acceleration Container and can be used for Bottom- and Top-Level Containers. If it's a Bottom-Level Container, then you might have updated the Vertex Buffer before (e.g. Skeletal Animation). Or in case of a Top-Level Container, you might want to update it's instances.
 
 ![](https://i.imgur.com/VO9hPv1.gif)<br/>
-*GLTF Skeletal Animation in RTX*
+*GLTF Skeletal Animation with RTX*
 
-This image is showing a quick implementation for Skeletal Animation, where the Acceleration Containers get updated each frame, and the Vertex Skinning is done in a Compute Shader.
+This image is showing a quick implementation for Skeletal Animation, where the Acceleration Containers get updated each frame, and the Vertex Skinning is done in a Compute Shader. The Model and it's Animation is taken from Unreal Engine 4.
 
 #### copyRayTracingAccelerationContainer
-This method allows to copy the state of an Acceleration Container into another Container and works both for Bottom- and Top-Level Containers.
+This method allows to copy the state of an Acceleration Container into another Container and works for both Bottom- and Top-Level Containers.
