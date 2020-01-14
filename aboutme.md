@@ -5,9 +5,7 @@ title: About me
 
 I'm Felix Maier and currently live in Tübingen, Germany.
 
-I'm a hobby developer, but sometimes do freelancing for programming projects. In my free time, I enjoy drawing, making music and do throat singing.
-
-People who know me remember me as the child/teenager, who always wanted to create a own Pokemon Game. Up to today, that's mostly the reason why I do programming.
+People who know me, remember me as the child/teenager, who always wanted to create a own Pokemon Game. Up to today, that's mostly the reason why I do programming.
 
 ## Links
 
