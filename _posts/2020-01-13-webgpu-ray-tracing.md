@@ -128,13 +128,17 @@ let geometryContainer = device.createRayTracingAccelerationContainer({
   geometries: [
     {
       type: "triangles", // the geometry kind of the vertices (only triangles allowed)
-      vertexBuffer: triangleVertexBuffer, // our GPU buffer containing the vertices
-      vertexFormat: "float3", // one vertex is made up of 3 floats
-      vertexStride: 3 * Float32Array.BYTES_PER_ELEMENT, // the byte stride between each vertex
-      vertexCount: triangleVertices.length, // the total amount of vertices
-      indexBuffer: triangleIndexBuffer, // (optional) the index buffer to use
-      indexFormat: "uint32", // (optional) the format of the index buffer (Uint32Array)
-      indexCount: triangleIndices.length // the total amount of indices
+      vertex: {
+        buffer: triangleVertexBuffer, // our GPU buffer containing the vertices
+        format: "float3", // one vertex is made up of 3 floats
+        stride: 3 * Float32Array.BYTES_PER_ELEMENT, // the byte stride between each vertex
+        count: triangleVertices.length, // the total amount of vertices
+      },
+      index: {
+        buffer: triangleIndexBuffer, // (optional) the index buffer to use
+        format: "uint32", // (optional) the format of the index buffer (Uint32Array)
+        count: triangleIndices.length // the total amount of indices
+      }
     }
   ]
 });
@@ -350,34 +354,60 @@ void main() {
 
 ### Shader Binding Table
 
-The Shader Binding Table has a fixed group order as well:
+The Shader Binding Table allows to group shaders together into groups, to dynamically invoke them later.
 
-1. All Ray-Generation Shaders
-2. All Ray-Hit Shaders (Closest-Hit, Any-Hit)
-3. All Ray-Miss Shaders
+The following shaders are supported:
 
-To later index a shader (e.g. in `traceNV`), you simply use the offset of the shader relative to the shader's group:
+ - GPUShaderStage.RAY_GENERATION
+ - GPUShaderStage.RAY_ANY_HIT
+ - GPUShaderStage.RAY_CLOSEST_HIT
+ - GPUShaderStage.RAY_MISS
+ - GPUShaderStage.RAY_INTERSECTION
+
+In `stages`, you add all the shaders you want to use.
+In `groups`, you then index the shaders defined in `stages` and also define how each shader will be used then.
+
+If the index in a group is `-1`, it means that there is no associated stage. You can also combine multiple stages into one group together, which is done e.g. for procedural hit shaders, where a hit shader is used along an intersection shader.
+
+Note that the `generalIndex` is used for Ray-Generation and Ray-Miss shaders.
 
 ````js
 let shaderBindingTable = device.createRayTracingShaderBindingTable({
-  shaders: [
-    // group 0 (Gen)
-    // offset 0
+  stages: [
     {
       module: rayGenShaderModule,
       stage: GPUShaderStage.RAY_GENERATION
     },
-    // group 1 (Hit)
-    // offset 0
     {
       module: rayCHitShaderModule,
       stage: GPUShaderStage.RAY_CLOSEST_HIT
     },
-    // group 2 (Miss)
-    // offset 0
     {
       module: rayMissShaderModule,
       stage: GPUShaderStage.RAY_MISS
+    }
+  ],
+  groups: [
+    {
+      type: "general",
+      generalIndex: 0,
+      anyHitIndex: -1,
+      closestHitIndex: -1,
+      intersectionIndex: -1
+    },
+    {
+      type: "triangles-hit-group",
+      generalIndex: -1,
+      anyHitIndex: -1,
+      closestHitIndex: 1,
+      intersectionIndex: -1
+    },
+    {
+      type: "general",
+      generalIndex: 2,
+      anyHitIndex: -1,
+      closestHitIndex: -1,
+      intersectionIndex: -1
     }
   ]
 });
@@ -408,7 +438,14 @@ let commandEncoder = device.createCommandEncoder({});
 let passEncoder = commandEncoder.beginRayTracingPass({});
 passEncoder.setPipeline(rtPipeline);
 passEncoder.setBindGroup(0, rtBindGroup);
-passEncoder.traceRays(window.width, window.height, 1);
+passEncoder.traceRays(
+  0, // sbt ray-generation index
+  1, // sbt ray-hit index
+  2, // sbt ray-miss index
+  window.width,  // query width
+  window.height, // query height
+  1              // query depth
+);
 passEncoder.endPass();
 queue.submit([ commandEncoder.finish() ]);
 ````
