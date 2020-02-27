@@ -29,6 +29,8 @@ Most WebGPU implementations come with multiple rendering backends, such as D3D12
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
 Recently I began adapting an unofficial Ray-Tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The Ray-Tracing extension is only implemented into the Vulkan backend so far, but a D3D12 implementation is on the Roadmap. You can find my Dawn Fork with Ray-Tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
+The specification of the RT extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
+
 Now let me introduce you to the ideas and concepts of the Ray-Tracing extension.
 
 ### Bounding Volume Hierarchies
@@ -43,7 +45,9 @@ Previously, you only had Vertex, Fragment and Compute shaders, each specialized 
 
  - Ray-Generation (`.rgen`)
  - Ray-Closest-Hit (`.rchit`)
+ - Ray-Any-Hit (`.rahit`)
  - Ray-Miss (`.rmiss`)
+ - Ray-Intersection (`.rint`)
 
 ##### Ray-Generation:
 For each pixel on the screen, we want to create and shoot a Ray into a scene. This shader allows to generate and trace Rays into an Acceleration Container.
@@ -51,8 +55,14 @@ For each pixel on the screen, we want to create and shoot a Ray into a scene. Th
 ##### Ray-Closest-Hit:
 A Ray can hit multiple surfaces (e.g. a Triangle), but often, we're only interested in the surface that is the closest to the Ray's origin. This shader gets invoked as soon as the closest hit surface, including information about the hit position and the relative object instance.
 
+##### Ray-Any-Hit:
+This shader is identical to the Closest-Hit Shader, but can get invoked multiple times.
+
 ##### Ray-Miss:
-This shader gets invoked, whenever a Ray didn't hit anything (e.g. "hit the sky").
+This shader gets invoked, whenever a Ray didn't hit anything (i.e. "hit the sky").
+
+##### Ray-Intersection:
+When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a Ray hits a bounding box. The default intersection shader is for triangles only, but a Ray-Intersection shader allows to add any kind of new geometry (e.g. Voxels, Spheres etc.).
 
 ### Shader Binding Table
 
@@ -127,7 +137,7 @@ let geometryContainer = device.createRayTracingAccelerationContainer({
   flags: GPURayTracingAccelerationContainerFlag.PREFER_FAST_TRACE,
   geometries: [
     {
-      type: "triangles", // the geometry kind of the vertices (only triangles allowed)
+      type: "triangles", // the geometry kind of the vertices (triangles or aabbs)
       vertex: {
         buffer: triangleVertexBuffer, // our GPU buffer containing the vertices
         format: "float3", // one vertex is made up of 3 floats
@@ -499,10 +509,18 @@ The fragment Shader is just copying the pixels of the Pixel Buffer into the Colo
 
 ### Tada
 
-Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire API, but let me show you 2 further methods, which can be quite handy:
+Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire API, but let me show you 3 further things, which can be quite handy:
+
+#### Procedural geometry
+Instead of triangles, using Ray-Intersection shaders and AABB geometry, it's possible to efficiently render millions of objects. 
+
+![](https://i.imgur.com/nkIm3aW.png)<br/>
+*Procedural Geometry (Voxels) with RTX*
+
+On a GTX 1080, I could smoothly render about 25.000.000 Voxels.
 
 #### updateRayTracingAccelerationContainer
-This method updates an Acceleration Container and can be used for Bottom- and Top-Level Containers. If it's a Bottom-Level Container, then you might have updated the Vertex Buffer before (e.g. Skeletal Animation). Or in case of a Top-Level Container, you might want to update it's instances.
+This method updates an Acceleration Container and can be used for Bottom- and Top-Level Containers. If it's a Bottom-Level Container, then you might have updated the Vertex Buffer before (e.g. Skeletal Animation). Or in case of a Top-Level Container, you might want to update it's instances. Note that to efficiently update the instances of a Top-Level Container, [GPURayTracingAccelerationContainerDescriptor.instanceBuffer](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md#gpuraytracingaccelerationcontainerdescriptor) should be used.
 
 ![](https://i.imgur.com/VO9hPv1.gif)<br/>
 *GLTF Skeletal Animation with RTX*
