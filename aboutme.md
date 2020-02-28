@@ -5,8 +5,6 @@ title: About me
 
 I'm Felix Maier and currently live in Tübingen, Germany.
 
-People who know me, remember me as the child/teenager, who always wanted to create a own Pokemon Game. Up to today, that's mostly the reason why I do programming.
-
 ## Links
 
  - [Github](https://github.com/maierfelix)
@@ -17,6 +15,7 @@ People who know me, remember me as the child/teenager, who always wanted to crea
 
 ### WebGPU related:
 
+ - [Vulkan Ray-Tracing Extension for WebGPU](https://github.com/maierfelix/dawn-ray-tracing)
  - [WebGPU API for Node](https://github.com/maierfelix/webgpu)
 
 ### Vulkan related:
@@ -49,12 +48,12 @@ People who know me, remember me as the child/teenager, who always wanted to crea
 
  - [PokeCraft (Wrote the Rendering Engine)](https://www.youtube.com/channel/UC5bMVzJRThGgpYSkNj3cdwQ)
  - [A WebGL Pokemon Map Editor](https://www.youtube.com/watch?v=-COtECNb8lo)
- - [WebGL Pokemon Engine](https://github.com/maierfelix/pokemmo)
  - [Pokemon GO Server Emulator](https://github.com/maierfelix/pogoserver)
+ - [WebGL Pokemon Engine](https://github.com/maierfelix/pokemmo)
 
 ### Research related:
 
- - [Dynamic Code Flow Analysis](https://github.com/maierfelix/Iroh)
+ - [Dynamic Code Analysis](https://github.com/maierfelix/Iroh)
 
 ### ROM Hacking related:
 
