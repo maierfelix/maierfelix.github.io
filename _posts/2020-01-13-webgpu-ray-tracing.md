@@ -41,7 +41,7 @@ Previously, for Ray-Tracing projects, you had to implement your own BVH system. 
 
 ### Ray-Tracing Shaders
 
-Previously, you only had Vertex, Fragment and Compute shaders, each specialized on their own task. The WebGPU Ray-Tracing extension exposes 3 new shader stages:
+Previously, you only had Vertex, Fragment and Compute shaders, each specialized on their own task. The WebGPU Ray-Tracing extension exposes 5 new shader stages:
 
  - Ray-Generation (`.rgen`)
  - Ray-Closest-Hit (`.rchit`)
