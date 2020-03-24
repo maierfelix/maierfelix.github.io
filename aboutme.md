@@ -22,7 +22,6 @@ I'm Felix Maier and currently live in Tübingen, Germany. I'm a self-taught deve
 ### Vulkan related:
 
  - [Vulkan JavaScript API](https://github.com/maierfelix/nvk)
- - [Vulkan JavaScript API examples](https://github.com/maierfelix/nvk-examples)
  - [Vulkan based RTX Real-Time Ray Tracer](https://github.com/maierfelix/tiny-rtx)
  - [Vulkan based RTX Real-Time Path Tracer](https://github.com/maierfelix/momo)
  - [Optix AI Denoiser for node-vulkan](https://github.com/maierfelix/nvk-optix-denoiser)
