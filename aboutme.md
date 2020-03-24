@@ -3,13 +3,14 @@ layout: page
 title: About me
 ---
 
-I'm Felix Maier and currently live in Tübingen, Germany.
+I'm Felix Maier and currently live in Tübingen, Germany. I'm a self-taught developer with a main interest in graphics programming.
 
 ## Links
 
  - [Github](https://github.com/maierfelix)
  - [E-Mail](mailto:xilefmai@gmail.com)
  - [Twitter](https://twitter.com/felixmaier96)
+ - [Resume](http://maierfelix.github.io/resume.pdf)
 
 ## My Projects
 
