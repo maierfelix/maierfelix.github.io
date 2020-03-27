@@ -8,7 +8,6 @@ comments: true
 ---
 
 ## Intro
-
 By the end of 2018, NVIDIA released the new GPU series Turing, best known for it's ability of accelerated Ray-Tracing.
 
 Ray-Tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
@@ -19,29 +18,25 @@ Modern Graphics APIs became a lot more complicated to work with and RTX was only
 **Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test RTX without the need to buy one of those more expensive cards.
 
 ## Luckily, there is WebGPU
-
 WebGPU is the successor to WebGL and combines multiple Graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
 
 Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
 
 ## Upfront
-
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
-Recently I began adapting an unofficial Ray-Tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The Ray-Tracing extension is only implemented into the Vulkan backend so far, but a D3D12 implementation is on the Roadmap. You can find my Dawn Fork with Ray-Tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
+Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far, but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
 The specification of the RT extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
-Now let me introduce you to the ideas and concepts of the Ray-Tracing extension.
+Now let me introduce you to the ideas and concepts of this new extension. Note that from now on, I will use *RT* when referring to Ray-Tracing or RTX.
 
 ### Bounding Volume Hierarchies
+When dealing with RT, you often end up having to work with [Bounding Volume Hierarchies](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) (short: *"BVH"*). BVHs are used to encapsulate arbitrary geometry for faster ray-triangle intersection. BVHs are very important in RT, since without them, for each ray, you'd have to check all triangles in a scene for intersection with the ray and this process quickly becomes expensive.
 
-When dealing with Ray-Tracing, you often end up having to work with [Bounding Volume Hierarchies](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) (short: *"BVH"*). In Ray-Tracing, BVHs are used to encapsulate arbitrary geometry for faster Ray-Triangle intersection. The reason for this is, that for each Ray, you have to check all Triangles in a scene for intersection with the Ray at some point and this process quickly becomes expensive.
-
-Previously, for Ray-Tracing projects, you had to implement your own BVH system. But today with RTX, you no longer have to do that, since the driver is generating the BVHs for you.
+Previously, for RT projects, you had to implement your own BVH system. Today you no longer have to do that, since the driver is generating the BVHs for you.
 
 ### Ray-Tracing Shaders
-
-Previously, you only had Vertex, Fragment and Compute shaders, each specialized on their own task. The WebGPU Ray-Tracing extension exposes 5 new shader stages:
+Previously, you only had Vertex, Fragment and Compute shaders, each specialized on their own task. The RT extension exposes 5 new shader stages:
 
  - Ray-Generation (`.rgen`)
  - Ray-Closest-Hit (`.rchit`)
@@ -50,51 +45,46 @@ Previously, you only had Vertex, Fragment and Compute shaders, each specialized 
  - Ray-Intersection (`.rint`)
 
 ##### Ray-Generation:
-For each pixel on the screen, we want to create and shoot a Ray into a scene. This shader allows to generate and trace Rays into an Acceleration Container.
+For each pixel on the screen, we want to shoot rays into a scene. This shader allows to generate and trace rays into an Acceleration Container.
 
 ##### Ray-Closest-Hit:
-A Ray can hit multiple surfaces (e.g. a Triangle), but often, we're only interested in the surface that is the closest to the Ray's origin. This shader gets invoked as soon as the closest hit surface, including information about the hit position and the relative object instance.
+A ray can hit multiple surfaces (e.g. a triangle), but often, we're only interested in the surface that is the closest to the ray's origin. This shader gets invoked for the "nearest/first surface hit" and also contains arbitary hit information.
 
 ##### Ray-Any-Hit:
-This shader is identical to the Closest-Hit Shader, but can get invoked multiple times.
+This shader is identical to the Closest-Hit shader, but can get invoked multiple times.
 
 ##### Ray-Miss:
-This shader gets invoked, whenever a Ray didn't hit anything (i.e. "hit the sky").
+This shader gets invoked, whenever a ray didn't hit anything (e.g. "hit the sky").
 
 ##### Ray-Intersection:
-When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a Ray hits a bounding box. The default intersection shader is for triangles only, but a Ray-Intersection shader allows to add any kind of new geometry (e.g. Voxels, Spheres etc.).
+When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a ray hits a bounding box. The default Ray-Intersection shader is for triangles only, but a Ray-Intersection shader allows to add any kind of new geometry (e.g. Voxels, Spheres etc.).
 
 ### Shader Binding Table
+The most common approach about shaders is to bind them, depending on how you want an object to look like on the Screen. In RT however, it's often impossible to known upfront which shaders to bind, and which shaders should get invoked in which order. To fix this, a new concept was introduced called the Shader Binding Table (or short "SBT").
 
-The most common approach about shaders is to bind them, depending on how you want an object to look like on the Screen. In Ray-Tracing however, it's often impossible to known upfront which shaders to bind, and which shaders should get invoked in which order. To fix this, a new concept was introduced called the Shader Binding Table.
-
-The Shader Binding Table's purpose is to batch shaders together into groups, and later, dynamically invoke them from the Ray-Tracing shaders, based on a Ray's tracing result (i.e. hit or miss a surface).
-
+The SBT's purpose is to batch shaders together into groups, and later, dynamically invoke them from the Ray-Tracing shaders, based on a Ray's tracing result (i.e. hit or miss a surface).
 
 ### Acceleration Containers
+Acceleration containers probably seem to be the most complicated thing at first, but they are actually quite simple in their concept, once you got the idea.
 
-Acceleration Containers probably seem to be the most complicated thing at first, but they are actually fairly simple in their concept, once your got the idea.
+There are two different kinds of acceleration containers:
 
-There are two different kinds of Acceleration Containers:
+1. Bottom-Level: The container stores references to geometry (short *"BLAC"*)
+2. Top-Level: The container stores instances with references to a bottom-level container, each with an arbitrary transform *"TLAC"*
 
-1. Bottom-Level: The container stores references to geometry
-2. Top-Level: The container stores instances with references to a Bottom-Level Container, each with an arbitrary transform
-
-Generally said, a Bottom-Level Container contains just the meshes, while a Top-Level Containers describes, where to place these meshes in a virtual world. In fact, this process is similar to [Geometry Instancing](https://en.wikipedia.org/wiki/Geometry_instancing), a common approach in CG, which is about effectively reusing Geometry across a scene to reduce memory usage and improve performance.
+Generally said, a bottom-level container contains just the meshes, while a top-level containers describes, where to place these meshes in a virtual world. In fact, this process is similar to [Geometry Instancing](https://en.wikipedia.org/wiki/Geometry_instancing), a common approach in CG, which is about effectively reusing geometry across a scene to reduce memory usage and improve performance.
 
 ## Coding Time
-
 You can find a code reference [here](https://github.com/maierfelix/webgpu/blob/master/examples/ray-tracing/index.mjs).
 
-After this Tutorial, you will be able to render this beautiful Triangle, fully Ray-Traced:
+After this tutorial, you will be able to render this beautiful triangle, fully ray traced:
 
 ![](https://i.imgur.com/qSYWet5.png)
 
 ### Create Geometry
-
 At first, you need some kind of geometry that you want to ray trace and draw to the screen.
 
-We'll just use a simple Triangle at first:
+We'll just use a simple triangle at first:
 
 ````js
 let triangleVertices = new Float32Array([
@@ -111,9 +101,7 @@ let triangleVertexBuffer = device.createBuffer({
 triangleVertexBuffer.setSubData(0, triangleVertices);
 ````
 
-Note that the Ray-Tracing API strictly disallows using geometry buffers, which aren't uploaded on the GPU. The reason for this is, that performing Ray-Tracing on a mapped buffer is incredibly ineffective because of the synchronization with the host.
-
-Since it's always recommended to use an Index buffer aside your geometry, let's create one:
+Since you probably end up using an index buffer later anyway, let's create one:
 ````js
 let triangleIndices = new Uint32Array([
   0, 1, 2
@@ -128,8 +116,7 @@ triangleIndexBuffer.setSubData(0, triangleIndices);
 ````
 
 ### Create Bottom-Level Acceleration Container
-
-Now we will create our first Acceleration Container, which stores a reference to the geometry we have just created:
+Now we will create our first acceleration container, which stores a reference to the geometry we have just created:
 
 ````js
 let geometryContainer = device.createRayTracingAccelerationContainer({
@@ -155,7 +142,6 @@ let geometryContainer = device.createRayTracingAccelerationContainer({
 ````
 
 ### Create Top-Level Acceleration Container
-
 This container will hold an instance with a reference to our triangle geometry. This instance defines how the geometry gets positioned in our world using the `transform` property. The property `geometryContainer` is used to assign geometry to the instance:
 
 ````js
@@ -180,8 +166,7 @@ let instanceContainer = device.createRayTracingAccelerationContainer({
 ````
 
 ### Building Acceleration Containers
-
-To let the driver build the BVHs and everything else for our Acceleration Containers, we use the Command `buildRayTracingAccelerationContainer`. One important thing to note here, is that the build order is important. Bottom-Level Containers must be built before Top-Level Containers, as they depend on each other.
+To let the driver build the BVHs and everything else for our acceleration containers, we use the command `buildRayTracingAccelerationContainer`. One important thing to note here, is that the build order is important. BLAC containers must be built before TLAC, as they depend on each other.
 
 ````js
 let commandEncoder = device.createCommandEncoder({});
@@ -191,8 +176,7 @@ queue.submit([ commandEncoder.finish() ]);
 ````
 
 ### Pixel Buffer
-
-Ray-Tracing Shaders run similar as a Compute Shader and we somehow have to get our Ray-Traced Pixels to the Screen. To do so, we create a Pixel Buffer, which we will write our Pixels into, and then copy these Pixels to the screen.
+Ray-Tracing Shaders run similar as a Compute shader and we somehow have to get our ray traced pixels to the screen. To do so, we create a pixel buffer, which we will write our pixels into, and then copy these pixels to the screen.
 
 ````js
 let pixelBufferSize = window.width * window.height * 4 * Float32Array.BYTES_PER_ELEMENT;
@@ -203,8 +187,7 @@ let pixelBuffer = device.createBuffer({
 ````
 
 ### Bind Group Layout
-
-There is a new type for bind group layouts, which allows us to assign a Top-Level Acceleration Container:
+There is a new type for bind group layouts, which allows us to assign a TLAC:
 
 ````js
 let rtBindGroupLayout = device.createBindGroupLayout({
@@ -226,9 +209,7 @@ let rtBindGroupLayout = device.createBindGroupLayout({
 ````
 
 ### Bind Group
-
-When creating our bind group, we simply set the Acceleration Container and the Pixel Buffer. Note that for the Acceleration Container, we don't have to specify a size.
-
+When creating our bind group, we simply set the Acceleration Container and the pixel buffer.
 ````js
 let rtBindGroup = device.createBindGroup({
   layout: rtBindGroupLayout,
@@ -250,14 +231,13 @@ let rtBindGroup = device.createBindGroup({
 ````
 
 ### Ray-Generation Shader
+RT shaders are similar to compute shaders, but when requiring the `GL_NV_ray_tracing` extension, things change quite a lot. I'll only describe the most important bits:
 
-Ray-Tracing Shaders are similar to Compute Shaders, but when requiring the `GL_NV_ray_tracing` extension, things change quite a lot. I'll only describe the most important bits:
-
-- `rayPayloadNV`: This payload is used to communicate between shader stages. For example, when the Hit-Shader is called, we can write a result into the payload, and read it back in the Ray-Generation Shader. Note that in other shaders, the payload is called `rayPayloadInNV`.
-- `uniform accelerationStructureNV`: That's Top-Level Acceleration Container we've bound in our Bind Group.
-- `gl_LaunchIDNV`: Is the relative Pixel Position, based on our `traceRays` call dimension.
+- `rayPayloadNV`: This payload is used to communicate between shader stages. For example, when the hit shader is called, we can write a result into the payload, and read it back in the ray generation Shader. Note that in other shaders, the payload is called `rayPayloadInNV`.
+- `uniform accelerationStructureNV`: That's TLAC we've bound in our bind group.
+- `gl_LaunchIDNV`: Is the relative pixel position, based on our `traceRays` call dimension.
 - `gl_LaunchSizeNV`: Is the dimension, specified in our `traceRays` call.
-- `traceNV`: Trace Rays into a Top-Level Acceleration Container
+- `traceNV`: Traces rays into a TLAC
 
 ````glsl
 #version 460
@@ -313,20 +293,19 @@ void main() {
 ````
 
 ### Ray-Closest-Hit Shader
+Gets executed for the closest intersection, relative to the ray.
 
-Gets executed for the closest intersection, relative to the Ray.
-
- - `rayPayloadInNV`: The Payload shared between this Shader and the Ray-Generation Shader.
- - `hitAttributeNV`: Intersection point defined in the Barycentric coordinate space.
+ - `rayPayloadInNV`: The Payload shared between this shader and the ra generation shader.
+ - `hitAttributeNV`: Intersection point defined in the barycentric coordinate space.
 
 Not used in this example, but important properties are also:
 
- - `gl_InstanceCustomIndexNV`: Returns us the Id of the instance we have intersected with - We can define the instance Id, when creating a Top-Level Acceleration Container.
- - `gl_WorldRayDirectionNV`: Returns the Ray's direction in World-Space and normalized.
- - `gl_WorldToObjectNV` and `gl_ObjectToWorldNV`: Can be used, to convert between World-Space and Object-Space. Note that both are `3x4` matrices.
- - `gl_HitTNV`: The traveled distance of the Ray.
+ - `gl_InstanceCustomIndexNV`: Returns us the Id of the instance we have intersected with - We can define the instance Id, when creating a TLAC.
+ - `gl_WorldRayDirectionNV`: Returns the ray's direction in world-space and is normalized.
+ - `gl_WorldToObjectNV` and `gl_ObjectToWorldNV`: Can be used, to convert between world-space and object-space. Note that both are `3x4` matrices.
+ - `gl_HitTNV`: The traveled distance of the ray.
 
-Note that Hit-Shaders and the Miss-Shader all have the same properties available. You can find a list of all available properties [here](https://github.com/KhronosGroup/GLSL/blob/master/extensions/nv/GLSL_NV_ray_tracing.txt#L57-L109).
+Note that hit and miss shaders all have the same properties available. You can find a list of all available properties [here](https://github.com/KhronosGroup/GLSL/blob/master/extensions/nv/GLSL_NV_ray_tracing.txt#L57-L109).
 
 ````glsl
 #version 460
@@ -345,8 +324,7 @@ void main() {
 ````
 
 ### Ray-Miss Shader
-
-Gets executed whenever a Ray hits nothing at all.
+Gets executed whenever a ray hit nothing at all.
 
 ````glsl
 #version 460
@@ -363,8 +341,7 @@ void main() {
 ````
 
 ### Shader Binding Table
-
-The Shader Binding Table allows to group shaders together into groups, to dynamically invoke them later.
+The SBT allows to group shaders together into groups, to dynamically invoke them later.
 
 The following shaders are supported:
 
@@ -379,7 +356,7 @@ In `groups`, you then index the shaders defined in `stages` and also define how 
 
 If the index in a group is `-1`, it means that there is no associated stage. You can also combine multiple stages into one group together, which is done e.g. for procedural hit shaders, where a hit shader is used along an intersection shader.
 
-Note that the `generalIndex` is used for Ray-Generation and Ray-Miss shaders.
+Note that the `generalIndex` is used for ray generation and ray miss shaders.
 
 ````js
 let shaderBindingTable = device.createRayTracingShaderBindingTable({
@@ -424,8 +401,7 @@ let shaderBindingTable = device.createRayTracingShaderBindingTable({
 ````
 
 ### Ray-Tracing Pipeline
-
-Creating the Ray-Tracing Pipeline is straightforward. The only important property here is `maxRecursionDepth`, which we can use to specify upfront how many Shader recursions we want to allow. Note that GPUs are bad at performing recursion, and when possible, recursive calls should be flattened into a loop. We will leave this value to `1`, so we can shoot our Rays in the Ray-Generation Shader.
+Creating the RT Pipeline is straightforward. The only important property here is `maxRecursionDepth`, which we can use to specify upfront how many shader recursions we want to allow. Note that GPUs are bad at performing recursion, and when possible, recursive calls should be flattened into a loop. We will leave this value to `1`, so we can shoot our rays in the ray generation shader.
 
 ````js
 let rtPipeline = device.createRayTracingPipeline({
@@ -440,8 +416,7 @@ let rtPipeline = device.createRayTracingPipeline({
 ````
 
 ### Tracing Rays
-
-The Ray-Tracing Pass's only difference to other Passes is, that we have the Command `traceRays`, which allows us to shoot Rays with a given dimension. You might find it useful to kind of think of `traceRays` as the `dispatch` Command in a Compute Pass.
+The RT Pass's only difference to other passes is, that we have the command `traceRays`, which allows us to shoot rays with a given dimension. You might find it useful to kind of think of `traceRays` as the `dispatch` command in a compute pass.
 
 ````js
 let commandEncoder = device.createCommandEncoder({});
@@ -461,10 +436,9 @@ queue.submit([ commandEncoder.finish() ]);
 ````
 
 ### Blit to Screen
+I left the part of setting up the rasterization pipeline, as it should be straightforward and only the blit shaders should be interesting.
 
-I left the part of setting up the Rasterization pipeline, as it should be straightforward and only the Blit Shaders should be interesting.
-
-The blit vertex Shader is created like this and defines a Full-Screen Quad:
+The blit vertex shader is created like this and defines a fullscreen quad:
 ````glsl
 #version 450
 #pragma shader_stage(vertex)
@@ -478,7 +452,7 @@ void main() {
 }
 ````
 
-Note that you have to draw with a Vertex Count `3` to successfully run this shader. Also, make sure that your Blit Pass has a color attachment with the Swapchain Image as Input.
+Note that you have to draw with a vertex count `3` to successfully run this shader. Also, make sure that your blit pass has a color attachment with the swapchain image as input.
 
 ````glsl
 #version 450
@@ -505,14 +479,13 @@ void main() {
 }
 ````
 
-The fragment Shader is just copying the pixels of the Pixel Buffer into the Color Attachment. 
+The fragment shader is just copying the pixels of the pixel buffer into the color attachment. 
 
 ### Tada
-
-Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire API, but let me show you 3 further things, which can be quite handy:
+Even though it's just a simple triangle, you can do quite a lot things with them. In this tutorial, I didn't cover the entire extension, but let me show you 3 further features, which can be quite handy:
 
 #### Procedural geometry
-Instead of triangles, using Ray-Intersection shaders and AABB geometry, it's possible to efficiently render millions of objects. 
+Instead of triangles, using ray intersection shaders and AABB geometry, it's possible to efficiently render millions of objects. 
 
 ![](https://i.imgur.com/nkIm3aW.png)<br/>
 *Procedural Geometry (Voxels) with RTX*
@@ -520,12 +493,12 @@ Instead of triangles, using Ray-Intersection shaders and AABB geometry, it's pos
 On a GTX 1080, I could smoothly render about 25.000.000 Voxels.
 
 #### updateRayTracingAccelerationContainer
-This method updates an Acceleration Container and can be used for Bottom- and Top-Level Containers. If it's a Bottom-Level Container, then you might have updated the Vertex Buffer before (e.g. Skeletal Animation). Or in case of a Top-Level Container, you might want to update it's instances. Note that to efficiently update the instances of a Top-Level Container, [GPURayTracingAccelerationContainerDescriptor.instanceBuffer](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md#gpuraytracingaccelerationcontainerdescriptor) should be used.
+This method updates an acceleration container and can be used for BLAC and TLAC. If it's a BLAC, then you might have updated the vertex buffer before (e.g. skeletal animation). Or in case of a TLAC, you might want to update it's instances. Note that to efficiently update the instances of a TLAC, [GPURayTracingAccelerationContainerDescriptor.instanceBuffer](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md#gpuraytracingaccelerationcontainerdescriptor) should be used.
 
 ![](https://i.imgur.com/VO9hPv1.gif)<br/>
-*GLTF Skeletal Animation with RTX*
+*GLTF skeletal animation with RT*
 
-This image is showing a quick implementation for Skeletal Animation, where the Acceleration Containers get updated each frame, and the Vertex Skinning is done in a Compute Shader. The Model and it's Animation is taken from Unreal Engine 4.
+This image is showing a quick implementation for skeletal animation, where the acceleration containers get updated each frame, and the vertex skinning is done in a compute shader. The model and it's animation is taken from Unreal Engine 4.
 
 #### copyRayTracingAccelerationContainer
-This method allows to copy the state of an Acceleration Container into another Container and works for both Bottom- and Top-Level Containers.
+This method allows to copy the state of an acceleration container into another container and works for both BLAC and TLAC.
