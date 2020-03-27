@@ -209,7 +209,7 @@ let rtBindGroupLayout = device.createBindGroupLayout({
 ````
 
 ### Bind Group
-When creating our bind group, we simply set the Acceleration Container and the pixel buffer.
+When creating our bind group, we simply set the acceleration container and the pixel buffer.
 ````js
 let rtBindGroup = device.createBindGroup({
   layout: rtBindGroupLayout,
