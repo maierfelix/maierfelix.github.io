@@ -36,7 +36,7 @@ When dealing with RT, you often end up having to work with [Bounding Volume Hier
 Previously, for RT projects, you had to implement your own BVH system. Today you no longer have to do that, since the driver is generating the BVHs for you.
 
 ### Ray-Tracing Shaders
-Previously, you only had Vertex, Fragment and Compute shaders, each specialized on their own task. The RT extension exposes 5 new shader stages:
+Previously, you only had vertex, fragment and compute shaders. The RT extension exposes 5 new shader stages:
 
  - Ray-Generation (`.rgen`)
  - Ray-Closest-Hit (`.rchit`)
@@ -295,7 +295,7 @@ void main() {
 ### Ray-Closest-Hit Shader
 Gets executed for the closest intersection, relative to the ray.
 
- - `rayPayloadInNV`: The Payload shared between this shader and the ra generation shader.
+ - `rayPayloadInNV`: The payload shared between this shader and the ra generation shader.
  - `hitAttributeNV`: Intersection point defined in the barycentric coordinate space.
 
 Not used in this example, but important properties are also:
@@ -401,7 +401,7 @@ let shaderBindingTable = device.createRayTracingShaderBindingTable({
 ````
 
 ### Ray-Tracing Pipeline
-Creating the RT Pipeline is straightforward. The only important property here is `maxRecursionDepth`, which we can use to specify upfront how many shader recursions we want to allow. Note that GPUs are bad at performing recursion, and when possible, recursive calls should be flattened into a loop. We will leave this value to `1`, so we can shoot our rays in the ray generation shader.
+Creating the RT pipeline is straightforward. The only important property here is `maxRecursionDepth`, which we can use to specify upfront how many shader recursions we want to allow. Note that GPUs are bad at performing recursion, and when possible, recursive calls should be flattened into a loop. We will leave this value to `1`, so we can shoot our rays in the ray generation shader.
 
 ````js
 let rtPipeline = device.createRayTracingPipeline({
