@@ -8,25 +8,25 @@ comments: true
 ---
 
 ## Intro
-By the end of 2018, NVIDIA released the new GPU series Turing, best known for it's ability of accelerated Ray-Tracing.
+By the end of 2018, NVIDIA released the new GPU series Turing, best known for it's ability of accelerated ray tracing.
 
-Ray-Tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
+Ray tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
 
-Previously, if you were interested in RTX or wanted to learn about this topic, then you had a giant chunk of learning material in front of you.
-Modern Graphics APIs became a lot more complicated to work with and RTX was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the RTX topic itself.
+Previously, if you were interested in modern ray tracing, then you had a giant chunk of learning material in front of you.
+Modern Graphics APIs became a lot more complicated to work with and ray tracing was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
 
 **Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test RTX without the need to buy one of those more expensive cards.
 
 ## Luckily, there is WebGPU
-WebGPU is the successor to WebGL and combines multiple Graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
+WebGPU is the successor to WebGL and combines multiple graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
 
-Most WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
+Some WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
 
 ## Upfront
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
 Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far, but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
-The specification of the RT extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
+The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
 Now let me introduce you to the ideas and concepts of this new extension. Note that from now on, I will use *RT* when referring to Ray-Tracing or RTX.
 
