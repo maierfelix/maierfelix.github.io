@@ -45,34 +45,34 @@ Previously, you only had vertex, fragment and compute shaders. The RT extension 
  - Ray-Intersection (`.rint`)
 
 ##### Ray-Generation:
-For each pixel on the screen, we want to shoot rays into a scene. This shader allows to generate and trace rays into an Acceleration Container.
+For each pixel on the screen, we want to shoot rays into a scene. This shader allows to generate and trace rays into an acceleration container.
 
 ##### Ray-Closest-Hit:
 A ray can hit multiple surfaces (e.g. a triangle), but often, we're only interested in the surface that is the closest to the ray's origin. This shader gets invoked for the "nearest/first surface hit" and also contains arbitary hit information.
 
 ##### Ray-Any-Hit:
-This shader is identical to the Closest-Hit shader, but can get invoked multiple times.
+This shader is identical to the closest-hit shader, but can get invoked multiple times.
 
 ##### Ray-Miss:
 This shader gets invoked, whenever a ray didn't hit anything (e.g. "hit the sky").
 
 ##### Ray-Intersection:
-When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a ray hits a bounding box. The default Ray-Intersection shader is for triangles only, but a Ray-Intersection shader allows to add any kind of new geometry (e.g. Voxels, Spheres etc.).
+When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a ray hits a bounding box. The default ray-intersection shader is for triangles only, but a ray-intersection shader allows to add any kind of new geometry (e.g. voxels, spheres etc.).
 
 ### Shader Binding Table
-The most common approach about shaders is to bind them, depending on how you want an object to look like on the Screen. In RT however, it's often impossible to known upfront which shaders to bind, and which shaders should get invoked in which order. To fix this, a new concept was introduced called the Shader Binding Table (or short "SBT").
+The most common approach about shaders is to bind them, depending on how you want an object to look like on the screen. In RT however, it's often impossible to known upfront which shaders to bind, and which shaders should get invoked in which order. To fix this, a new concept was introduced called the shader binding table (or short "SBT").
 
-The SBT's purpose is to batch shaders together into groups, and later, dynamically invoke them from the Ray-Tracing shaders, based on a Ray's tracing result (i.e. hit or miss a surface).
+The SBT's purpose is to batch shaders together into groups, and later, dynamically invoke them from the RT shaders, based on a ray's tracing result (i.e. hit or miss a surface).
 
 ### Acceleration Containers
 Acceleration containers probably seem to be the most complicated thing at first, but they are actually quite simple in their concept, once you got the idea.
 
 There are two different kinds of acceleration containers:
 
-1. Bottom-Level: The container stores references to geometry (short *"BLAC"*)
-2. Top-Level: The container stores instances with references to a bottom-level container, each with an arbitrary transform *"TLAC"*
+1. Bottom-level: The container stores references to geometry (short *"BLAC"*)
+2. Top-level: The container stores instances with references to a bottom-level container, each with an arbitrary transform *"TLAC"*
 
-Generally said, a bottom-level container contains just the meshes, while a top-level containers describes, where to place these meshes in a virtual world. In fact, this process is similar to [Geometry Instancing](https://en.wikipedia.org/wiki/Geometry_instancing), a common approach in CG, which is about effectively reusing geometry across a scene to reduce memory usage and improve performance.
+Generally said, a bottom-level container contains just the meshes, while a top-level containers describes, where to place these meshes in a virtual world. In fact, this process is similar to [Geometry Instancing](https://en.wikipedia.org/wiki/Geometry_instancing), a common approach in graphics programming, which is about effectively reusing geometry across a scene to reduce memory usage and improve performance.
 
 ## Coding Time
 You can find a code reference [here](https://github.com/maierfelix/webgpu/blob/master/examples/ray-tracing/index.mjs).
@@ -176,7 +176,7 @@ queue.submit([ commandEncoder.finish() ]);
 ````
 
 ### Pixel Buffer
-Ray-Tracing Shaders run similar as a Compute shader and we somehow have to get our ray traced pixels to the screen. To do so, we create a pixel buffer, which we will write our pixels into, and then copy these pixels to the screen.
+RT shaders run similar as a compute shader and we somehow have to get our ray traced pixels to the screen. To do so, we create a pixel buffer, which we will write our pixels into, and then copy these pixels to the screen.
 
 ````js
 let pixelBufferSize = window.width * window.height * 4 * Float32Array.BYTES_PER_ELEMENT;
@@ -233,7 +233,7 @@ let rtBindGroup = device.createBindGroup({
 ### Ray-Generation Shader
 RT shaders are similar to compute shaders, but when requiring the `GL_NV_ray_tracing` extension, things change quite a lot. I'll only describe the most important bits:
 
-- `rayPayloadNV`: This payload is used to communicate between shader stages. For example, when the hit shader is called, we can write a result into the payload, and read it back in the ray generation Shader. Note that in other shaders, the payload is called `rayPayloadInNV`.
+- `rayPayloadNV`: This payload is used to communicate between shader stages. For example, when the hit shader is called, we can write a result into the payload, and read it back in the ray generation shader. Note that in other shaders, the payload is called `rayPayloadInNV`.
 - `uniform accelerationStructureNV`: That's TLAC we've bound in our bind group.
 - `gl_LaunchIDNV`: Is the relative pixel position, based on our `traceRays` call dimension.
 - `gl_LaunchSizeNV`: Is the dimension, specified in our `traceRays` call.
@@ -300,7 +300,7 @@ Gets executed for the closest intersection, relative to the ray.
 
 Not used in this example, but important properties are also:
 
- - `gl_InstanceCustomIndexNV`: Returns us the Id of the instance we have intersected with - We can define the instance Id, when creating a TLAC.
+ - `gl_InstanceCustomIndexNV`: Returns us the Id of the instance we have intersected with - We can define the instance id, when creating a TLAC.
  - `gl_WorldRayDirectionNV`: Returns the ray's direction in world-space and is normalized.
  - `gl_WorldToObjectNV` and `gl_ObjectToWorldNV`: Can be used, to convert between world-space and object-space. Note that both are `3x4` matrices.
  - `gl_HitTNV`: The traveled distance of the ray.
