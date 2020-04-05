@@ -8,7 +8,7 @@ comments: true
 ---
 
 ## Intro
-By the end of 2018, NVIDIA released the new GPU series Turing, best known for it's ability of accelerated ray tracing.
+By the end of 2018, NVIDIA released the new GPU series Turing, best known for its ability of accelerated ray tracing.
 
 Ray tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
 
@@ -493,12 +493,12 @@ Instead of triangles, using ray intersection shaders and AABB geometry, it's pos
 On a GTX 1080, I could smoothly render about 25.000.000 Voxels.
 
 #### updateRayTracingAccelerationContainer
-This method updates an acceleration container and can be used for BLAC and TLAC. If it's a BLAC, then you might have updated the vertex buffer before (e.g. skeletal animation). Or in case of a TLAC, you might want to update it's instances. Note that to efficiently update the instances of a TLAC, [GPURayTracingAccelerationContainerDescriptor.instanceBuffer](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md#gpuraytracingaccelerationcontainerdescriptor) should be used.
+This method updates an acceleration container and can be used for BLAC and TLAC. If it's a BLAC, then you might have updated the vertex buffer before (e.g. skeletal animation). Or in case of a TLAC, you might want to update its instances. Note that to efficiently update the instances of a TLAC, [GPURayTracingAccelerationContainerDescriptor.instanceBuffer](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md#gpuraytracingaccelerationcontainerdescriptor) should be used.
 
 ![](https://i.imgur.com/VO9hPv1.gif)<br/>
 *GLTF skeletal animation with RT*
 
-This image is showing a quick implementation for skeletal animation, where the acceleration containers get updated each frame, and the vertex skinning is done in a compute shader. The model and it's animation is taken from Unreal Engine 4.
+This image is showing a quick implementation for skeletal animation, where the acceleration containers get updated each frame, and the vertex skinning is done in a compute shader. The model and the animation is taken from Unreal Engine 4.
 
 #### copyRayTracingAccelerationContainer
 This method allows to copy the state of an acceleration container into another container and works for both BLAC and TLAC.
