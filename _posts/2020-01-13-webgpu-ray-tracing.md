@@ -2,7 +2,7 @@
 layout: post
 title: Real-Time Ray-Tracing in WebGPU
 gh-repo: maierfelix/webgpu
-bigimg: /img/meetmat.png
+bigimg: /img/Screenshot_2.png
 tags: [WebGPU, RTX]
 comments: true
 ---
