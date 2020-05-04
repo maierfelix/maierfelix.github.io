@@ -24,7 +24,7 @@ Some WebGPU implementations come with multiple rendering backends, such as D3D12
 
 ## Preview
 
-Here is a recent preview of a project using WebGPU Ray tracing:
+Here is a recent preview of a project using WebGPU ray tracing:
 
 <iframe width="480" height="360" src="https://www.youtube.com/embed/Z7Nf5UYppuc?color=white&theme=light\" frameborder="0" allowfullscreen></iframe>
 
