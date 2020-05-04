@@ -26,7 +26,7 @@ Some WebGPU implementations come with multiple rendering backends, such as D3D12
 
 Here is a recent preview of a project using WebGPU Ray tracing:
 
-<iframe width="420" src="https://www.youtube.com/watch?v=Z7Nf5UYppuc" frameborder="0" allowfullscreen></iframe>
+<iframe width="420" src="https://www.youtube.com/embed/Z7Nf5UYppuc?color=white&theme=light\"></iframe>
 
 ## Upfront
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
