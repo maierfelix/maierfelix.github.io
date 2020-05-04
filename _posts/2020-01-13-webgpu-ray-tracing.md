@@ -34,14 +34,14 @@ Recently I began adapting an unofficial ray tracing extension for [Dawn](https:/
 
 The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
-Now let me introduce you to the ideas and concepts of this new extension. Note that from now on, I will use *RT* when referring to Ray-Tracing or RTX.
+Now let me introduce you to the ideas and concepts of this new extension. Note that from now on, I will use *RT* when referring to ray tracing or RTX.
 
 ### Bounding Volume Hierarchies
 When dealing with RT, you often end up having to work with [Bounding Volume Hierarchies](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) (short: *"BVH"*). BVHs are used to encapsulate arbitrary geometry for faster ray-triangle intersection. BVHs are very important in RT, since without them, for each ray, you'd have to check all triangles in a scene for intersection with the ray and this process quickly becomes expensive.
 
 Previously, for RT projects, you had to implement your own BVH system. Today you no longer have to do that, since the driver is generating the BVHs for you.
 
-### Ray-Tracing Shaders
+### Ray tracing Shaders
 Previously, you only had vertex, fragment and compute shaders. The RT extension exposes 5 new shader stages:
 
  - Ray-Generation (`.rgen`)
@@ -401,7 +401,7 @@ let shaderBindingTable = device.createRayTracingShaderBindingTable({
 });
 ````
 
-### Ray-Tracing Pipeline
+### Ray tracing Pipeline
 Creating the RT pipeline is straightforward. The only important property here is `maxRecursionDepth`, which we can use to specify upfront how many shader recursions we want to allow. Note that GPUs are bad at performing recursion, and when possible, recursive calls should be flattened into a loop. We will leave this value to `1`, so we can shoot our rays in the ray generation shader.
 
 ````js
