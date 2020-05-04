@@ -13,7 +13,7 @@ By the end of 2018, NVIDIA released the new GPU series Turing, best known for it
 Ray tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
 
 Previously, if you were interested in modern ray tracing, then you had a giant chunk of learning material in front of you.
-Modern Graphics APIs became a lot more complicated to work with and ray tracing was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
+Modern graphics APIs became a lot more complicated to work with and ray tracing was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
 
 **Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test RTX without the need to buy one of those more expensive cards.
 
