@@ -24,7 +24,7 @@ Some WebGPU implementations come with multiple rendering backends, such as D3D12
 
 ## Upfront
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
-Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far, but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
+Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far (using *VK_KHR_ray_tracing*), but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
 The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
@@ -84,8 +84,7 @@ After this tutorial, you will be able to render this beautiful triangle, fully r
 ### Create Geometry
 At first, you need some kind of geometry that you want to ray trace and draw to the screen.
 
-We'll just use a simple triangle at first:
-
+We'll just use a simple triangle at first. Notice that for all buffers which will be used in acceleration containers later, the GPUBufferUsage.RAY_TRACING must be set.
 ````js
 let triangleVertices = new Float32Array([
    1.0,  1.0, 0.0,
@@ -95,7 +94,7 @@ let triangleVertices = new Float32Array([
 // create a GPU local buffer containing the vertices
 let triangleVertexBuffer = device.createBuffer({
   size: triangleVertices.byteLength,
-  usage: GPUBufferUsage.COPY_DST
+  usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.RAY_TRACING
 });
 // upload the vertices to the GPU buffer
 triangleVertexBuffer.setSubData(0, triangleVertices);
@@ -109,7 +108,7 @@ let triangleIndices = new Uint32Array([
 // create a GPU local buffer containing the indices
 let triangleIndexBuffer = device.createBuffer({
   size: triangleIndices.byteLength,
-  usage: GPUBufferUsage.COPY_DST
+  usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.RAY_TRACING
 });
 // upload the indices to the GPU buffer
 triangleIndexBuffer.setSubData(0, triangleIndices);
@@ -166,11 +165,19 @@ let instanceContainer = device.createRayTracingAccelerationContainer({
 ````
 
 ### Building Acceleration Containers
-To let the driver build the BVHs and everything else for our acceleration containers, we use the command `buildRayTracingAccelerationContainer`. One important thing to note here, is that the build order is important. BLAC containers must be built before TLAC, as they depend on each other.
+To let the driver build the BVHs and everything else for our acceleration containers, we use the command `buildRayTracingAccelerationContainer`.
+There are 2 important things to keep in mind when building acceleration containers. First, BLAC which get referenced in a TLAC must be built before the TLAC. Second, BLAC and TLAC must **not** be built in the same pass, use different passes instead.
 
+In terms of code this means:
 ````js
 let commandEncoder = device.createCommandEncoder({});
 commandEncoder.buildRayTracingAccelerationContainer(geometryContainer);
+queue.submit([ commandEncoder.finish() ]);
+````
+
+````js
+let commandEncoder = device.createCommandEncoder({});
+// instanceContainer can now be built, since geometryContainer was built before
 commandEncoder.buildRayTracingAccelerationContainer(instanceContainer);
 queue.submit([ commandEncoder.finish() ]);
 ````
@@ -231,112 +238,100 @@ let rtBindGroup = device.createBindGroup({
 ````
 
 ### Ray-Generation Shader
-RT shaders are similar to compute shaders, but when requiring the `GL_NV_ray_tracing` extension, things change quite a lot. I'll only describe the most important bits:
+RT shaders are similar to compute shaders, but when requiring the `GL_EXT_ray_tracing` extension, things change quite a lot. I'll only describe the most important bits:
 
-- `rayPayloadNV`: This payload is used to communicate between shader stages. For example, when the hit shader is called, we can write a result into the payload, and read it back in the ray generation shader. Note that in other shaders, the payload is called `rayPayloadInNV`.
-- `uniform accelerationStructureNV`: That's TLAC we've bound in our bind group.
-- `gl_LaunchIDNV`: Is the relative pixel position, based on our `traceRays` call dimension.
-- `gl_LaunchSizeNV`: Is the dimension, specified in our `traceRays` call.
-- `traceNV`: Traces rays into a TLAC
+- `rayPayloadEXT`: This payload is used to communicate between shader stages. For example, when the hit shader is called, we can write a result into the payload, and read it back in the ray generation shader. Note that in other shaders, the payload is called `rayPayloadInEXT`.
+- `uniform accelerationStructureEXT`: The TLAC that we've binded in our bind group.
+- `gl_LaunchIDEXT`: Is the relative pixel position, based on our `traceRays` call dimension.
+- `gl_LaunchSizeEXT`: Is the dimension, specified in our `traceRays` call.
+- `traceRayEXT`: Traces rays into a TLAC
 
 ````glsl
 #version 460
-#extension GL_NV_ray_tracing : require
+#extension GL_EXT_ray_tracing : enable
 #pragma shader_stage(raygen)
 
-layout(location = 0) rayPayloadNV vec3 hitValue;
+struct RayPayload { vec3 color; };
+layout(location = 0) rayPayloadEXT RayPayload payload;
 
-layout(binding = 0, set = 0) uniform accelerationStructureNV container;
-
-layout(std140, set = 0, binding = 1) buffer PixelBuffer {
+layout(set = 0, binding = 0) uniform accelerationStructureEXT acc;
+layout(set = 0, binding = 1, std140) buffer PixelBuffer {
   vec4 pixels[];
 } pixelBuffer;
 
-// see code reference on how to create this buffer
-layout(set = 0, binding = 2) uniform Camera {
-  mat4 view;
-  mat4 projection;
-} uCamera;
-
 void main() {
-  ivec2 ipos = ivec2(gl_LaunchIDNV.xy);
-  const ivec2 resolution = ivec2(gl_LaunchSizeNV.xy);
+  ivec2 ipos = ivec2(gl_LaunchIDEXT.xy);
+  const ivec2 resolution = ivec2(gl_LaunchSizeEXT.xy);
 
-  const vec2 offset = vec2(0);
-  const vec2 pixel = vec2(ipos.x, ipos.y);
-  const vec2 uv = (pixel / gl_LaunchSizeNV.xy) * 2.0 - 1.0;
+  vec2 pixelCenter = vec2(gl_LaunchIDEXT.xy) + vec2(0.5);
 
-  // create ray
-  vec4 origin = uCamera.view * vec4(offset, 0, 1);
-  vec4 target = uCamera.projection * (vec4(uv.x, uv.y, 1, 1));
-  vec4 direction = uCamera.view * vec4(normalize(target.xyz), 0);
+  vec2 d = (pixelCenter / vec2(gl_LaunchSizeEXT.xy)) * 2.0 - 1.0;
+  float aspectRatio = float(gl_LaunchSizeEXT.x) / float(gl_LaunchSizeEXT.y);
 
-  // shoot ray into top-level container
-  traceNV(
-    container,           // top-level container
-    gl_RayFlagsOpaqueNV, // additional flags
-    0xFF,                // ignore mask
-    0,                   // shader binding table group offset
-    0,                   // shader binding table group offset
-    0,                   // shader binding table group offset
-    origin.xyz,          // ray origin
-    0.01,                // minimum intersection range
-    direction.xyz,       // ray direction
-    4096.0,              // maximum intersection range
-    0                    // payload location to use (see rayPayloadNV, rayPayloadInNV)
+  vec3 rayOrigin = vec3(0, 0, -1.5);
+  vec3 rayDir = normalize(vec3(d.x * aspectRatio, -d.y, 1));
+
+  uint sbtOffset = 0;
+  uint sbtStride = 0;
+  uint missIndex = 0;
+  payload.color = vec3(0);
+  traceRayEXT(
+    acc, gl_RayFlagsOpaqueEXT, 0xff,
+    sbtOffset, sbtStride, missIndex,
+    rayOrigin, 0.001, rayDir, 100.0,
+    0
   );
 
-  // write the pixel result into a pixel buffer
   const uint pixelIndex = ipos.y * resolution.x + ipos.x;
-  pixelBuffer.pixels[pixelIndex] = vec4(hitValue, 1);
+  pixelBuffer.pixels[pixelIndex] = vec4(payload.color, 1.0);
 }
 ````
 
 ### Ray-Closest-Hit Shader
 Gets executed for the closest intersection, relative to the ray.
 
- - `rayPayloadInNV`: The payload shared between this shader and the ra generation shader.
- - `hitAttributeNV`: Intersection point defined in the barycentric coordinate space.
+ - `rayPayloadInEXT`: The payload shared between this shader and the ray generation shader.
+ - `hitAttributeEXT`: Intersection point defined in the barycentric coordinate space.
 
 Not used in this example, but important properties are also:
 
- - `gl_InstanceCustomIndexNV`: Returns us the Id of the instance we have intersected with - We can define the instance id, when creating a TLAC.
- - `gl_WorldRayDirectionNV`: Returns the ray's direction in world-space and is normalized.
- - `gl_WorldToObjectNV` and `gl_ObjectToWorldNV`: Can be used, to convert between world-space and object-space. Note that both are `3x4` matrices.
- - `gl_HitTNV`: The traveled distance of the ray.
+ - `gl_InstanceCustomIndexEXT`: Returns us the Id of the instance we have intersected with - We can define the instance id, when creating a TLAC.
+ - `gl_WorldRayDirectionEXT`: Returns the ray's direction in world-space and is normalized.
+ - `gl_WorldToObjectEXT` and `gl_ObjectToWorldEXT`: Can be used, to convert between world-space and object-space. Note that both are `3x4` matrices.
+ - `gl_HitTEXT`: The traveled distance of the ray.
 
-Note that hit and miss shaders all have the same properties available. You can find a list of all available properties [here](https://github.com/KhronosGroup/GLSL/blob/master/extensions/nv/GLSL_NV_ray_tracing.txt#L57-L109).
+Note that hit and miss shaders mostly have the same properties available (most importantly miss shaders have no hit information). You can find a list of all available properties [here](https://github.com/KhronosGroup/GLSL/blob/master/extensions/nv/GLSL_NV_ray_tracing.txt#L57-L109).
 
 ````glsl
 #version 460
-#extension GL_NV_ray_tracing : require
+#extension GL_EXT_ray_tracing : enable
 #pragma shader_stage(closest)
 
-// shared with ray-gen shader
-layout(location = 0) rayPayloadInNV vec3 hitValue;
+struct RayPayload { vec3 color; };
+layout(location = 0) rayPayloadInEXT RayPayload payload;
 
-hitAttributeNV vec2 attribs;
+struct HitAttributeData { vec2 bary; };
+hitAttributeEXT HitAttributeData attribs;
 
 void main() {
-  const vec3 bary = vec3(1.0f - attribs.x - attribs.y, attribs.x, attribs.y);
-  hitValue = bary;
+  vec3 bary = vec3(1.0 - attribs.bary.x - attribs.bary.y, attribs.bary.x, attribs.bary.y);
+  payload.color = bary;
 }
 ````
 
 ### Ray-Miss Shader
-Gets executed whenever a ray hit nothing at all.
+Gets executed whenever a ray hit nothing at all. We simply return a gray color here.
 
 ````glsl
 #version 460
-#extension GL_NV_ray_tracing : require
+#extension GL_EXT_ray_tracing : enable
 #pragma shader_stage(miss)
 
-// shared with ray-gen shader
-layout(location = 0) rayPayloadInNV vec3 hitValue;
+struct RayPayload { vec3 color; };
+layout(location = 0) rayPayloadInEXT RayPayload payload;
 
 void main() {
-  // return a greyish color when nothing is hit
-  hitValue = vec3(0.15);
+  payload.color = vec3(0.3);
 }
 ````
 
