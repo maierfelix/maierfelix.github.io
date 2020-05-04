@@ -3,7 +3,7 @@ layout: post
 title: Real-Time Ray-Tracing in WebGPU
 gh-repo: maierfelix/webgpu
 bigimg: /img/Screenshot_18.png
-tags: [WebGPU, RTX]
+tags: [WebGPU, Ray Tracing]
 comments: true
 ---
 
@@ -15,7 +15,7 @@ Ray tracing is the process of simulating light paths from reality. In reality, b
 Previously, if you were interested in modern ray tracing, then you had a giant chunk of learning material in front of you.
 Modern graphics APIs became a lot more complicated to work with and ray tracing was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
 
-**Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test RTX without the need to buy one of those more expensive cards.
+**Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test ray tracing without the need to buy one of those more expensive cards.
 
 ## Luckily, there is WebGPU
 WebGPU is the successor to WebGL and combines multiple graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
@@ -29,7 +29,7 @@ Here is a recent preview of a project using WebGPU Ray tracing:
 <iframe width="480" height="360" src="https://www.youtube.com/embed/Z7Nf5UYppuc?color=white&theme=light\" frameborder="0" allowfullscreen></iframe>
 
 ## Upfront
-Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
+Note that ray tracing is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
 Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far (using *VK_KHR_ray_tracing*), but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
 The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
@@ -489,7 +489,7 @@ Even though it's just a simple triangle, you can do quite a lot things with them
 Instead of triangles, using ray intersection shaders and AABB geometry, it's possible to efficiently render millions of objects. 
 
 ![](https://i.imgur.com/nkIm3aW.png)<br/>
-*Procedural Geometry (Voxels) with RTX*
+*Procedural geometry (Voxels) with ray tracing*
 
 On a GTX 1080, I could smoothly render about 25.000.000 Voxels.
 
