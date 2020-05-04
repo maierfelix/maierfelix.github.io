@@ -2,7 +2,7 @@
 layout: post
 title: Real-Time Ray-Tracing in WebGPU
 gh-repo: maierfelix/webgpu
-bigimg: /img/Screenshot_2.png
+bigimg: /img/Screenshot_18.png
 tags: [WebGPU, RTX]
 comments: true
 ---
@@ -21,6 +21,12 @@ Modern Graphics APIs became a lot more complicated to work with and ray tracing 
 WebGPU is the successor to WebGL and combines multiple graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
 
 Some WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
+
+## Preview
+
+Here is a recent preview of a project using WebGPU Ray tracing:
+
+<iframe width="420" src="https://www.youtube.com/watch?v=Z7Nf5UYppuc" frameborder="0" allowfullscreen></iframe>
 
 ## Upfront
 Note that RTX is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
