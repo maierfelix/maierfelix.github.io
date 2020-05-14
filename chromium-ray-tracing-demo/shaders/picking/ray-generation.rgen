@@ -1,0 +1,60 @@
+#version 460
+#extension GL_EXT_ray_tracing  : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#pragma shader_stage(raygen)
+
+struct RayPayload {
+  vec4 position;
+  vec4 normal;
+  uint instanceId;
+};
+
+layout(location = 0) rayPayloadEXT RayPayload Ray;
+
+layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
+
+layout(binding = 1, std140) buffer PickingBuffer {
+  vec4 inputData;
+  vec4 outputData;
+} Picking;
+
+layout(binding = 2) uniform CameraBuffer {
+  vec4 forward;
+  mat4 viewInverse;
+  mat4 projectionInverse;
+  mat4 viewProjection;
+  mat4 previousViewInverse;
+  mat4 previousProjectionInverse;
+  float aperture;
+  float focusDistance;
+  float zNear;
+  float zFar;
+} Camera;
+
+layout (binding = 3) uniform SettingsBuffer {
+  uint sampleCount;
+  uint totalSampleCount;
+  uint lightCount;
+  uint screenWidth;
+  uint screenHeight;
+  uint envResolution;
+  uint envTextureIndex;
+  float envHdrMultiplier;
+} Settings;
+
+void main() {
+  const vec2 res = vec2(Settings.screenWidth, Settings.screenHeight);
+  const vec2 pixel = vec2(Picking.inputData.x, res.y - Picking.inputData.y);
+  const vec2 uv = (pixel / res) * 2.0 - 1.0;
+
+  vec4 origin = Camera.viewInverse * vec4(0, 0, 0, 1);
+  vec4 target = Camera.projectionInverse * (vec4(uv.x, uv.y, 1, 1));
+  vec4 direction = Camera.viewInverse * vec4(normalize(target.xyz * Camera.focusDistance), 0);
+
+  traceRayEXT(topLevelAS, gl_RayFlagsOpaqueNV, 0xFF, 0, 0, 0, origin.xyz, Camera.zNear, direction.xyz, Camera.zFar, 0);
+
+  Picking.outputData = vec4(
+    Ray.position.xyz,
+    Ray.instanceId
+  );
+}
