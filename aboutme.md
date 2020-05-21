@@ -10,13 +10,13 @@ I'm Felix Maier and currently live in Tübingen, Germany. I'm a self-taught deve
  - [Github](https://github.com/maierfelix)
  - [E-Mail](mailto:xilefmai@gmail.com)
  - [Twitter](https://twitter.com/felixmaier96)
- - [Resume](http://maierfelix.github.io/resume.pdf)
 
 ## My Projects
 
 ### WebGPU related:
 
- - [Vulkan Ray-Tracing Extension for WebGPU](https://github.com/maierfelix/dawn-ray-tracing)
+ - [Chromium with Ray Tracing](https://github.com/maierfelix/chromium-ray-tracing)
+ - [Vulkan + D3D12 Ray Tracing Extension for WebGPU](https://github.com/maierfelix/dawn-ray-tracing)
  - [WebGPU API for Node](https://github.com/maierfelix/webgpu)
 
 ### Vulkan related:
