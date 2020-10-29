@@ -24,13 +24,15 @@ Some WebGPU implementations come with multiple rendering backends, such as D3D12
 
 ## Preview
 
-Here is a recent preview of a project using WebGPU ray tracing:
+Here is an exampleproject using WebGPU Ray tracing:
 
 <iframe width="480" height="360" src="https://www.youtube.com/embed/Z7Nf5UYppuc?color=white&theme=light\" frameborder="0" allowfullscreen></iframe>
 
+Source code: [Link](https://github.com/maierfelix/WebGPU-Path-Tracer)
+
 ## Upfront
 Note that ray tracing is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
-Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is only implemented into the Vulkan backend so far (using *VK_KHR_ray_tracing*), but a D3D12 implementation is on the roadmap. You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
+Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is implemented into the Vulkan backend (using *VK_KHR_ray_tracing*) and the D3D12 backend (using *DXT*). You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
 The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
@@ -81,9 +83,9 @@ There are two different kinds of acceleration containers:
 Generally said, a bottom-level container contains just the meshes, while a top-level containers describes, where to place these meshes in a virtual world. In fact, this process is similar to [Geometry Instancing](https://en.wikipedia.org/wiki/Geometry_instancing), a common approach in graphics programming, which is about effectively reusing geometry across a scene to reduce memory usage and improve performance.
 
 ## Coding Time
-You can find a code reference [here](https://github.com/maierfelix/webgpu/blob/master/examples/ray-tracing/index.mjs).
+You can find a code reference [here](https://github.com/maierfelix/webgpu-examples/blob/master/ray-tracing/index.mjs).
 
-After this tutorial, you will be able to render this beautiful triangle, fully ray traced:
+After this tutorial, you will be able to render this beautiful triangle, fully ray traced with hardware acceleration:
 
 ![](https://i.imgur.com/qSYWet5.png)
 
