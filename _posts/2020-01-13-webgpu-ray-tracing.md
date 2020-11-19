@@ -13,12 +13,12 @@ By the end of 2018, NVIDIA released the new GPU series Turing, best known for it
 Ray tracing is the process of simulating light paths from reality. In reality, billions of rays get shot around you and at some point, hit your eyes. Up to today, simulating this process is one of the most expensive tasks in computer science and an ongoing research area.
 
 Previously, if you were interested in modern ray tracing, then you had a giant chunk of learning material in front of you.
-Modern graphics APIs became a lot more complicated to work with and ray tracing was only available for such APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
+Modern graphics APIs became a lot more complicated to work with and ray tracing was only available for these APIs. You had to spend a lot time learning about them, before you could even start about the ray tracing topic itself.
 
 **Note**: If you're not the owner of a RTX card, but have a GTX 1060+ around, then you are one of the lucky guys who can test ray tracing without the need to buy one of those more expensive cards.
 
 ## Luckily, there is WebGPU
-WebGPU is the successor to WebGL and combines multiple graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more easier to work with.
+WebGPU is the successor to WebGL and combines multiple graphics APIs into one, standardized API. It is said, that WebGPU's API is a mixture of Apple's Metal API and parts of the Vulkan API, but a lot more straightforward to work with.
 
 Some WebGPU implementations come with multiple rendering backends, such as D3D12, Vulkan, Metal and OpenGL. Depending on the user's setup, one of these backends get used, preferably the fastest one with the most reliability for the platform. The commands sent to WebGPU then get translated into one of these backends.
 
@@ -30,9 +30,11 @@ Here is an example project using WebGPU Ray tracing:
 
 Source code: [Link](https://github.com/maierfelix/WebGPU-Path-Tracer)
 
+There is also a custom Chromium build with ray tracing capabilities and an online demo, which you can find [here](https://github.com/maierfelix/chromium-ray-tracing).
+
 ## Upfront
 Note that ray tracing is not available officially for WebGPU (yet?) and is only available for the [Node bindings for WebGPU](https://github.com/maierfelix/webgpu).
-Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is implemented into the Vulkan backend (using *VK_KHR_ray_tracing*) and the D3D12 backend (using *DXT*). You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
+Recently I began adapting an unofficial ray tracing extension for [Dawn](https://dawn.googlesource.com/dawn), which is the WebGPU implementation for [Chromium](https://www.chromium.org/). The ray tracing extension is implemented into the Vulkan backend (using *VK_KHR_ray_tracing*) and the D3D12 backend (using *DXR*). You can find my Dawn fork with ray tracing capabilities [here](https://github.com/maierfelix/dawn-ray-tracing).
 
 The specification of the ray tracing extension can be found [here](https://github.com/maierfelix/dawn-ray-tracing/blob/master/RT_SPEC.md).
 
@@ -41,7 +43,7 @@ Now let me introduce you to the ideas and concepts of this new extension. Note t
 ### Bounding Volume Hierarchies
 When dealing with RT, you often end up having to work with [Bounding Volume Hierarchies](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) (short: *"BVH"*). BVHs are used to encapsulate arbitrary geometry for faster ray-triangle intersection. BVHs are very important in RT, since without them, for each ray, you'd have to check all triangles in a scene for intersection with the ray and this process quickly becomes expensive.
 
-Previously, for RT projects, you had to implement your own BVH system. Today you no longer have to do that, since the driver is generating the BVHs for you.
+Previously, for RT projects, you had to implement your own BVH system. Today you no longer have to do that, since the driver is generating the BVHs for you (either on CPU or GPU).
 
 ### Ray tracing Shaders
 Previously, you only had vertex, fragment and compute shaders. The RT extension exposes 5 new shader stages:
@@ -56,13 +58,13 @@ Previously, you only had vertex, fragment and compute shaders. The RT extension 
 For each pixel on the screen, we want to shoot rays into a scene. This shader allows to generate and trace rays into an acceleration container.
 
 ##### Ray-Closest-Hit:
-A ray can hit multiple surfaces (e.g. a triangle), but often, we're only interested in the surface that is the closest to the ray's origin. This shader gets invoked for the "nearest/first surface hit" and also contains arbitary hit information.
+A ray can hit multiple surfaces (e.g. a triangle), but often, we're only interested in the surface that is the closest to the ray's origin. This shader gets invoked for the "closest surface" that got intersected with and also contains arbitary hit information.
 
 ##### Ray-Any-Hit:
 This shader is identical to the closest-hit shader, but can get invoked multiple times.
 
 ##### Ray-Miss:
-This shader gets invoked, whenever a ray didn't hit anything (e.g. "hit the sky").
+This shader gets invoked, whenever a ray didn't hit anything (i.e. "hit the sky").
 
 ##### Ray-Intersection:
 When dealing with procedural geometry, a custom intersection shader can be defined to determine what happens when a ray hits a bounding box. The default ray-intersection shader is for triangles only, but a ray-intersection shader allows to add any kind of new geometry (e.g. voxels, spheres etc.).
@@ -73,7 +75,7 @@ The most common approach about shaders is to bind them, depending on how you wan
 The SBT's purpose is to batch shaders together into groups, and later, dynamically invoke them from the RT shaders, based on a ray's tracing result (i.e. hit or miss a surface).
 
 ### Acceleration Containers
-Acceleration containers probably seem to be the most complicated thing at first, but they are actually quite simple in their concept, once you got the idea.
+Acceleration containers probably seem to be the most complicated thing at first, but they are actually quite simple in their concept.
 
 There are two different kinds of acceleration containers:
 
