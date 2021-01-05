@@ -57,4 +57,5 @@ I'm Felix Maier and currently live in Tübingen, Germany. I'm a self-taught deve
 
 ### ROM Hacking related:
 
+ - [A Decoder for Nintendo Switch BNSH Shaders](https://github.com/maierfelix/bnsh-decoder)
  - [Pokemon Emerald ROM Hacking Kit](https://github.com/maierfelix/pokemon-emerald-rom-hacking)
