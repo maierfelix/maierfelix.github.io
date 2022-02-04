@@ -7,9 +7,10 @@ I'm a self-taught developer with a main interest in graphics programming.
 
 ## Links
 
- - [Github](https://github.com/maierfelix)
  - [E-Mail](mailto:xilefmai@gmail.com)
- - [Twitter](https://twitter.com/felixmaier96)
+ - [Github](https://github.com/maierfelix)
+ - [Twitter](https://twitter.com/_x1m4)
+ - [Youtube](https://www.youtube.com/channel/UC11z7VyOhTuUMi-ZntJ0PWA)
 
 ## My Projects
 
@@ -27,9 +28,9 @@ I'm a self-taught developer with a main interest in graphics programming.
  - [Optix AI Denoiser for node-vulkan](https://github.com/maierfelix/nvk-optix-denoiser)
  - [HTML GUI for node-vulkan](https://github.com/maierfelix/azula)
 
-### VR related:
+### Crypto related:
 
- - [A WebXR based VR 3D engine](https://github.com/maierfelix/xr-engine)
+ - [Library to work with the cryptocurrency Banano](https://github.com/maierfelix/banotils)
 
 ### WebAssembly related:
 
@@ -50,6 +51,10 @@ I'm a self-taught developer with a main interest in graphics programming.
  - [A WebGL Pokemon Map Editor](https://www.youtube.com/watch?v=-COtECNb8lo)
  - [Pokemon GO Server Emulator](https://github.com/maierfelix/pogoserver)
  - [WebGL Pokemon Engine](https://github.com/maierfelix/pokemmo)
+
+### VR related:
+
+ - [A WebXR based VR 3D engine](https://github.com/maierfelix/xr-engine)
 
 ### Research related:
 
